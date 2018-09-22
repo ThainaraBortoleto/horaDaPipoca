@@ -12,6 +12,10 @@ public class FilmeService {
 	public FilmeService() {
 		dao = new FilmeDAO();
 	}
+	
+	public ArrayList<Filme> listarFilmes(String chave) throws IOException{
+		return dao.listarFilmes(chave);
+	}
 
 	public ArrayList<Filme> listarFilmes() throws IOException {
 		return dao.listarFilmes();
@@ -28,14 +32,17 @@ public class FilmeService {
 	}
 
 	public Filme atualizarFilme(Filme filme) throws IOException {
-		int id = dao.atualizarFilme(filme);
-		filme.setId(id);
+		dao.atualizarFilme(filme);
 		return filme;
 	}
 
 	public int excluirFilme(int id) throws IOException {
 		dao.excluir(id);
 		return id;
+	}
+	
+	public boolean isEmpty(String field) {
+		return field == "" || field == null || field.equals("0") ? true : false;
 	}
 
 }
