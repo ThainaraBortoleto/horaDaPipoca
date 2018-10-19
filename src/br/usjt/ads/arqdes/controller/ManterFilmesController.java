@@ -1,210 +1,227 @@
 package br.usjt.ads.arqdes.controller;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import br.usjt.ads.arqdes.model.entity.Filme;
 import br.usjt.ads.arqdes.model.entity.Genero;
 import br.usjt.ads.arqdes.model.service.FilmeService;
 import br.usjt.ads.arqdes.model.service.GeneroService;
 
-/**
- * Servlet implementation class ManterFilmesController
- */
-@WebServlet("/manterfilmes.do")
-public class ManterFilmesController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
-		String acao = request.getParameter("acao");
-		RequestDispatcher dispatcher;
-		FilmeService fService;
-		GeneroService gService;
-		Filme filme;
-		Genero genero;
-		HttpSession session;
-		int idFilme;
-		ArrayList<Genero> generos;
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
-		String titulo = request.getParameter("titulo");
-		String descricao = request.getParameter("descricao");
-		String diretor = request.getParameter("diretor");
-		String posterPath = request.getParameter("posterPath");
-		String popularidade = request.getParameter("popularidade") == null
-				|| request.getParameter("popularidade").length() == 0 ? "0" : request.getParameter("popularidade");
-		String dataLancamento = request.getParameter("dataLancamento") == null
-				|| request.getParameter("dataLancamento").length() == 0 ? "" : request.getParameter("dataLancamento");
-		String idGenero = request.getParameter("genero.id");
-		String chave = request.getParameter("data[search]");
-
-		switch (acao) {
-		case "novo":
-			gService = new GeneroService();
-			generos = gService.listarGeneros();
-			session = request.getSession();
+@Controller
+public class ManterFilmesController {
+	@Autowired
+	private FilmeService fService;
+	@Autowired
+	private GeneroService gService;
+	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    dateFormat.setLenient(false);
+	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+	}
+	
+	@RequestMapping("/")
+	public String inicio() {
+		return "index";
+	}
+	
+	@RequestMapping("/inicio")
+	public String inicio1() {
+		return "index";
+	}
+	
+	@RequestMapping("/listar_filmes")
+	public String listarFilmes(HttpSession session){
+		session.setAttribute("lista", null);
+		return "ListarFilmes";
+	}
+	
+	@RequestMapping("/novo_filme")
+	public String novoFilme(HttpSession session) {
+		try {
+			ArrayList<Genero> generos = gService.listarGeneros();
 			session.setAttribute("generos", generos);
-			dispatcher = request.getRequestDispatcher("CriarFilme.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "criar":
-
-			fService = new FilmeService();
-			filme = new Filme();
-			filme.setTitulo(titulo);
-			filme.setDescricao(descricao);
-			filme.setDiretor(diretor);
-
-			gService = new GeneroService();
-			genero = new Genero();
-			genero.setId(Integer.parseInt(idGenero));
-			genero.setNome(gService.buscarGenero(genero.getId()).getNome());
-			filme.setGenero(genero);
-
-			try {
-				filme.setDataLancamento(formatter.parse(dataLancamento));
-			} catch (ParseException e) {
-				e.printStackTrace();
-				filme.setDataLancamento(null);
-			}
-
-			filme.setPopularidade(Double.parseDouble(popularidade));
-			filme.setPosterPath(posterPath);
-
-			filme = fService.inserirFilme(filme);
-
-			request.setAttribute("filme", filme);
-
-			dispatcher = request.getRequestDispatcher("VisualizarFilme.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "atualizar":
-			idFilme = Integer.parseInt(request.getParameter("id"));
-			fService = new FilmeService();
-			filme = new Filme();
-
-			Filme f2 = new Filme();
-			f2 = fService.buscarFilme(idFilme);
-			
-			// ID FILME
-			filme.setId(idFilme);
-			
-			// If the request parameter is empty, keep the same value
-			String fTitulo = fService.isEmpty(titulo) ? f2.getTitulo() : titulo;
-			filme.setTitulo(fTitulo);
-
-			String fDescricao = fService.isEmpty(descricao) ? f2.getDescricao() : descricao;
-			filme.setDescricao(fDescricao);
-
-			String fDiretor = fService.isEmpty(diretor) ? f2.getDiretor() : diretor;
-			filme.setDiretor(fDiretor);
-
-			gService = new GeneroService();
-			genero = new Genero();
-			genero.setId(Integer.parseInt(idGenero));
-			genero.setNome(gService.buscarGenero(genero.getId()).getNome());
-			filme.setGenero(genero);
-
-			try {
-				String fDataLancamento = fService.isEmpty(dataLancamento) ? f2.getDataLancamento().toString()
-						: dataLancamento;
-				filme.setDataLancamento(formatter.parse(fDataLancamento));
-			} catch (ParseException e) {
-				e.printStackTrace();
-				filme.setDataLancamento(null);
-			}
-			
-			String fPopularidade = fService.isEmpty(popularidade) ? Double.toString(f2.getPopularidade()) : popularidade;
-			
-			filme.setPopularidade(Double.parseDouble(fPopularidade));
-
-			String fPosterPath = fService.isEmpty(posterPath) ? f2.getPosterPath() : posterPath;
-			filme.setPosterPath(fPosterPath);
-
-			fService.atualizarFilme(filme);
-			request.setAttribute("filme", filme);
-
-			dispatcher = request.getRequestDispatcher("VisualizarFilme.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "reiniciar":
-			session = request.getSession();
-			session.setAttribute("lista", null);
-			dispatcher = request.getRequestDispatcher("ListarFilmes.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "listar":
-			session = request.getSession();
-			fService = new FilmeService();
-			ArrayList<Filme> lista;
-			if (chave != null && chave.length() > 0) {
-				lista = fService.listarFilmes(chave);
-			} else {
-				lista = fService.listarFilmes();
-			}
-			session.setAttribute("lista", lista);
-			dispatcher = request.getRequestDispatcher("ListarFilmes.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "editar":
-			idFilme = Integer.parseInt(request.getParameter("id"));
-
-			fService = new FilmeService();
-			filme = fService.buscarFilme(idFilme);
-
-			gService = new GeneroService();
-			generos = gService.listarGeneros();
-
-			session = request.getSession();
-			session.setAttribute("generos", generos);
-
-			request.setAttribute("filme", filme);
-			dispatcher = request.getRequestDispatcher("AlterarFilme.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "visualizar":
-			idFilme = Integer.parseInt(request.getParameter("id"));
-
-			fService = new FilmeService();
-			filme = fService.buscarFilme(idFilme);
-
-			request.setAttribute("filme", filme);
-			dispatcher = request.getRequestDispatcher("VisualizarFilme.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "excluir":
-			session = request.getSession();
-			idFilme = Integer.parseInt(request.getParameter("id"));
-
-			fService = new FilmeService();
-			fService.excluirFilme(idFilme);
-
-			ArrayList<Filme> filmes = fService.listarFilmes();
-
-			session.setAttribute("lista", filmes);
-			dispatcher = request.getRequestDispatcher("ListarFilmes.jsp");
-			dispatcher.forward(request, response);
-			break;
+			return "CriarFilme";
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-
+		return "index";
 	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		doGet(request, response);
+	
+	@RequestMapping("/inserir_filme")
+	public String inserirFilme(@Valid Filme filme, BindingResult result, Model model) {
+		try {
+			if (!result.hasFieldErrors()) {
+				Genero genero = gService.buscarGenero(filme.getGenero().getId());
+				filme.setGenero(genero);
+				model.addAttribute("filme", filme);
+				fService.inserirFilme(filme);
+				return "VisualizarFilme";
+			}
+			return "CriarFilme";
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "index";
 	}
-
+	
+	@RequestMapping("/buscar_filmes")
+	public String buscarFilmes(HttpSession session, @RequestParam String chave) {
+		try {
+			ArrayList<Filme> lista;
+			
+			if(chave != null && chave.length() > 0)
+				lista = fService.listarFilmes(chave);
+			else
+				lista = fService.listarFilmes();
+			
+			session.setAttribute("lista", lista);
+			return "ListarFilmes";
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "Erro";
+		}
+	}
+	
+	@RequestMapping("/visualizar_filme")
+	public String visualizarFilme(HttpSession session, @RequestParam String id) {
+		try {
+			Filme verFilme = fService.buscarFilme(Integer.parseInt(id));
+			session.setAttribute("filme", verFilme);
+			return "VisualizarFilme";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "ListarFilmes";
+	}
+	
+	@RequestMapping("/excluir_filme")
+	public String excluirFilme(Model model, @RequestParam String id) {
+		try {
+			fService.excluirFilme(Integer.parseInt(id));
+			model.addAttribute("chave", "");
+			return "redirect:buscar_filmes";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "Erro";
+	}
+	
+	@RequestMapping("/editar_filme")
+	public String editarFilme(Model model, @RequestParam String id) {
+		try {
+			ArrayList<Genero> generos = gService.listarGeneros();
+			model.addAttribute("generos", generos);
+			model.addAttribute("filme", fService.buscarFilme(Integer.parseInt(id)));
+			return "EditarFilme";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "Erro";
+	}
+	
+	@RequestMapping("/salvar_filme")
+	public String salvarFilme(@Valid Filme filme, BindingResult result, Model model) {
+		System.out.println(filme);
+		try {
+			if (!result.hasFieldErrors()) {
+				Genero genero = gService.buscarGenero(filme.getGenero().getId());
+				filme.setGenero(genero);
+				model.addAttribute("filme", filme);
+				fService.alterarFilme(filme);
+				return "VisualizarFilme";
+			}
+			return "EditarFilme";
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "index";
+	}
+	
+	@RequestMapping("/listar_genero")
+	public String listarGenero(Model model) {
+		try {
+			ArrayList<Genero> glista = gService.buscarGenerosFilmes();
+			ArrayList<Filme> flista = fService.listarFilmes();
+			model.addAttribute("glista", glista);
+			model.addAttribute("flista", flista);
+			return "ListarFilmesGenero";
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "Erro";
+	}
+	
+	@RequestMapping("/listar_popularidade")
+	public String listarPopularidade(Model model) {
+		
+		try {
+			int[][] ratingRanges = new int[][] { { 81, 100 }, { 61, 80 }, { 41, 60 }, { 21, 40 }, { 0, 20 } };
+			ArrayList<Filme> lista = fService.listarFilmes();
+			model.addAttribute("flista", lista);
+			model.addAttribute("ratings", fService.getRatings(lista, ratingRanges));
+			model.addAttribute("ranges", ratingRanges);
+			return "ListarFilmesPopularidade";
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "Erro";
+	}
+	
+	@RequestMapping("/listar_lancamento")
+	public String listarLancamento(Model model) {
+		
+		try {
+			ArrayList<Filme> lista = fService.listarFilmes();
+			ArrayList<ArrayList<Filme>> listas = new ArrayList<ArrayList<Filme>>();
+			listas = fService.getLancamentos(lista);
+			model.addAttribute("listas", listas);
+			return "ListarFilmesLancamento";
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "Erro";
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
