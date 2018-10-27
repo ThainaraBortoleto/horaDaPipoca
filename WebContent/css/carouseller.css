@@ -37,6 +37,7 @@
     opacity: 0.5;
     text-align: center;
 	color: #000;
+
 	text-decoration: none;
 }
 .carouseller .carouseller__left { left: 0;}
@@ -75,4 +76,3 @@
 	.carouseller .car__2,
 	.carouseller .car__1 { width: 10%;}
 }
-

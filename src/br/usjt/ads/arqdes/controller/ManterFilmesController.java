@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -31,7 +30,6 @@ public class ManterFilmesController {
 	public String inicio() {
 		return "index";
 	}
-
 	@RequestMapping("/inicio")
 	public String inicio1() {
 		return "index";
@@ -70,7 +68,6 @@ public class ManterFilmesController {
 		}
 		return "index";
 	}
-
 	@RequestMapping("/visualizar_filme")
 	public String visualizarFilme(HttpSession session, @RequestParam String id) {
 		try {
@@ -171,4 +168,3 @@ public class ManterFilmesController {
 		return "index";
 	}
 
-}

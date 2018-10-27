@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +26,6 @@ public class GeneroDAO {
 			throw new IOException(e);
 		}
 	}
-	
 	public Genero buscarGenero(int id) throws IOException {
 		Genero genero = null;
 		String sql = "select id, nome from genero where id=?";
@@ -61,6 +59,26 @@ public class GeneroDAO {
 				Genero genero = new Genero();
 				genero.setId(rs.getInt("id"));
 				genero.setNome(rs.getString("nome"));
+				generos.add(genero);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new IOException(e);
+		}
+		return generos;
+	}
+	
+	public ArrayList<Genero> buscarGenerosFilmes() throws IOException {
+		ArrayList<Genero> generos = new ArrayList<>();
+		String sql = "select distinct g.id, g.nome, f.id_genero from genero g, filme f where g.id = f.id_genero;";
+
+		try (PreparedStatement pst = conn.prepareStatement(sql);
+				ResultSet rs = pst.executeQuery();) {
+
+			while (rs.next()) {
+				Genero genero = new Genero();
+				genero.setId(rs.getInt("g.id"));
+				genero.setNome(rs.getString("g.nome"));
 				generos.add(genero);
 			}
 		} catch (SQLException e) {

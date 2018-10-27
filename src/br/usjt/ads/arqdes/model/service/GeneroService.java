@@ -13,13 +13,16 @@ import br.usjt.ads.arqdes.model.entity.Genero;
 public class GeneroService {
 	@Autowired
 	private GeneroDAO dao;
-	
 	public Genero buscarGenero(int id) throws IOException {
 		return dao.buscarGenero(id);
 	}
 	
 	public ArrayList<Genero> listarGeneros() throws IOException{
 		return dao.listarGeneros();
+	}
+	
+	public ArrayList<Genero> buscarGenerosFilmes() throws IOException{
+		return dao.buscarGenerosFilmes();
 	}
 
 }
