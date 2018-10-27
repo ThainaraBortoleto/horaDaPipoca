@@ -2,6 +2,9 @@ package br.usjt.ads.arqdes.model.entity;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+
+@Entity
 public class Filme {
 	private int id;
 	private String titulo;
