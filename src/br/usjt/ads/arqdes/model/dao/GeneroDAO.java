@@ -15,19 +15,17 @@ import br.usjt.ads.arqdes.model.entity.Genero;
 
 @Repository
 public class GeneroDAO {
-
 	Connection conn;
-
+	
 	@Autowired
-	public GeneroDAO(DataSource ds) throws IOException {
+	public GeneroDAO(DataSource dataSource) throws IOException {
 		try {
-			conn = ds.getConnection();
+			conn = dataSource.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new IOException(e);
 		}
 	}
-
 	public Genero buscarGenero(int id) throws IOException {
 		Genero genero = null;
 		String sql = "select id, nome from genero where id=?";

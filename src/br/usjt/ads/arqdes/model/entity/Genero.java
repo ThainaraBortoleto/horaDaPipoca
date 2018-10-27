@@ -1,5 +1,8 @@
 package br.usjt.ads.arqdes.model.entity;
 
+import javax.persistence.Entity;
+
+@Entity
 public class Genero {
 	private int id;
 	private String nome;

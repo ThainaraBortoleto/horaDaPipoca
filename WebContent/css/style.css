@@ -1,3 +1,20 @@
-body {
-	padding-top: 50px;
-}
+
+@CHARSET "UTF-8";
+/*
+ * style.css
+ */
+
+ .movie-card {
+ 	height: 300px;
+ 	width: 500px;
+ }
+ 
+ .movie-image-card {
+ 	float: left;
+ 	height: 300px;
+ 	width: 220px;
+ }
+ 
+ .movie-card-body{
+ 	float: right
+ }

@@ -30,14 +30,14 @@
 .carouseller .carouseller__left, 
 .carouseller .carouseller__right {
 	position: absolute; 
-	margin: auto 0; 
-	bottom: 82px;
+	margin: 0; 
+	bottom: 25px;
     background: none repeat scroll 0 0 transparent;
     font-size: 80px;
     opacity: 0.5;
     text-align: center;
 	color: #000;
-	outline:none;
+
 	text-decoration: none;
 }
 .carouseller .carouseller__left { left: 0;}

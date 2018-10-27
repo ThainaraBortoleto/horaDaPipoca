@@ -7,6 +7,9 @@ import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import br.usjt.ads.arqdes.model.dao.FilmeDAO;
 import br.usjt.ads.arqdes.model.entity.Filme;
 
@@ -14,11 +17,6 @@ import br.usjt.ads.arqdes.model.entity.Filme;
 public class FilmeService {
 	@Autowired
 	private FilmeDAO dao;
-	
-	
-	public Filme buscarFilme(int id) throws IOException{
-		return dao.buscarFilme(id);
-	}
 	
 	public Filme inserirFilme(Filme filme) throws IOException {
 		int id = dao.inserirFilme(filme);

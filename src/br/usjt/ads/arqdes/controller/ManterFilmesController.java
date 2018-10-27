@@ -1,20 +1,16 @@
 package br.usjt.ads.arqdes.controller;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-
+import java.util.HashSet;
+import java.util.Set;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -29,30 +25,22 @@ public class ManterFilmesController {
 	private FilmeService fService;
 	@Autowired
 	private GeneroService gService;
-	
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	    dateFormat.setLenient(false);
-	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-	}
-	
+
 	@RequestMapping("/")
 	public String inicio() {
 		return "index";
 	}
-	
 	@RequestMapping("/inicio")
 	public String inicio1() {
 		return "index";
 	}
-	
+
 	@RequestMapping("/listar_filmes")
-	public String listarFilmes(HttpSession session){
+	public String listarFilmes(HttpSession session) {
 		session.setAttribute("lista", null);
 		return "ListarFilmes";
 	}
-	
+
 	@RequestMapping("/novo_filme")
 	public String novoFilme(HttpSession session) {
 		try {
@@ -64,43 +52,22 @@ public class ManterFilmesController {
 		}
 		return "index";
 	}
-	
+
 	@RequestMapping("/inserir_filme")
-	public String inserirFilme(@Valid Filme filme, BindingResult result, Model model) {
+	public String inserirFilme(Filme filme, Model model) {
 		try {
-			if (!result.hasFieldErrors()) {
-				Genero genero = gService.buscarGenero(filme.getGenero().getId());
-				filme.setGenero(genero);
-				model.addAttribute("filme", filme);
-				fService.inserirFilme(filme);
-				return "VisualizarFilme";
-			}
-			return "CriarFilme";
-			
+			Genero genero = gService.buscarGenero(filme.getGenero().getId());
+			filme.setGenero(genero);
+			model.addAttribute("filme", filme);
+			fService.inserirFilme(filme);
+			return "VisualizarFilme";
+
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "index";
 	}
-	
-	@RequestMapping("/buscar_filmes")
-	public String buscarFilmes(HttpSession session, @RequestParam String chave) {
-		try {
-			ArrayList<Filme> lista;
-			
-			if(chave != null && chave.length() > 0)
-				lista = fService.listarFilmes(chave);
-			else
-				lista = fService.listarFilmes();
-			
-			session.setAttribute("lista", lista);
-			return "ListarFilmes";
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "Erro";
-		}
-	}
-	
 	@RequestMapping("/visualizar_filme")
 	public String visualizarFilme(HttpSession session, @RequestParam String id) {
 		try {
@@ -110,10 +77,10 @@ public class ManterFilmesController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return "ListarFilmes";
 	}
-	
+
 	@RequestMapping("/excluir_filme")
 	public String excluirFilme(Model model, @RequestParam String id) {
 		try {
@@ -123,105 +90,81 @@ public class ManterFilmesController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return "Erro";
 	}
-	
+
 	@RequestMapping("/editar_filme")
 	public String editarFilme(Model model, @RequestParam String id) {
 		try {
 			ArrayList<Genero> generos = gService.listarGeneros();
 			model.addAttribute("generos", generos);
 			model.addAttribute("filme", fService.buscarFilme(Integer.parseInt(id)));
-			return "EditarFilme";
+			return "AlterarFilme";
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return "Erro";
 	}
-	
-	@RequestMapping("/salvar_filme")
-	public String salvarFilme(@Valid Filme filme, BindingResult result, Model model) {
-		System.out.println(filme);
+
+	@RequestMapping("/buscar_filmes")
+	public String buscarFilmes(HttpSession session, @RequestParam String chave) {
 		try {
-			if (!result.hasFieldErrors()) {
-				Genero genero = gService.buscarGenero(filme.getGenero().getId());
-				filme.setGenero(genero);
-				model.addAttribute("filme", filme);
-				fService.alterarFilme(filme);
-				return "VisualizarFilme";
-			}
-			return "EditarFilme";
-			
+			ArrayList<Filme> lista;
+
+			if (chave != null && chave.length() > 0)
+				lista = fService.listarFilmes(chave);
+			else
+				lista = fService.listarFilmes();
+
+			session.setAttribute("lista", lista);
+			return "ListarFilmes";
 		} catch (IOException e) {
 			e.printStackTrace();
+			return "Erro";
 		}
-		return "index";
 	}
-	
+
 	@RequestMapping("/listar_genero")
 	public String listarGenero(Model model) {
 		try {
-			ArrayList<Genero> glista = gService.buscarGenerosFilmes();
-			ArrayList<Filme> flista = fService.listarFilmes();
-			model.addAttribute("glista", glista);
-			model.addAttribute("flista", flista);
+			ArrayList<Genero> generos = gService.listarGeneros();
+			ArrayList<Filme> filmes = fService.listarFilmes();
+			ArrayList<String> genFlista = new ArrayList<>();
+			Set<String> hs = new HashSet<>();
+			for (Filme film : filmes) {
+				genFlista.add(film.getGenero().getNome());
+			}
+
+			hs.addAll(genFlista);
+			genFlista.clear();
+			genFlista.addAll(hs);
+
+			model.addAttribute("glista", generos);
+			model.addAttribute("genLista", genFlista);
+			model.addAttribute("flista", filmes);
 			return "ListarFilmesGenero";
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return "Erro";
 	}
-	
-	@RequestMapping("/listar_popularidade")
-	public String listarPopularidade(Model model) {
-		
+
+	@RequestMapping("/salvar_filme")
+	public String salvarFilme(Filme filme, Model model) {
+		System.out.println(filme);
 		try {
-			int[][] ratingRanges = new int[][] { { 81, 100 }, { 61, 80 }, { 41, 60 }, { 21, 40 }, { 0, 20 } };
-			ArrayList<Filme> lista = fService.listarFilmes();
-			model.addAttribute("flista", lista);
-			model.addAttribute("ratings", fService.getRatings(lista, ratingRanges));
-			model.addAttribute("ranges", ratingRanges);
-			return "ListarFilmesPopularidade";
-		}catch (IOException e) {
+			Genero genero = gService.buscarGenero(filme.getGenero().getId());
+			filme.setGenero(genero);
+			System.out.println(filme);
+			model.addAttribute("filme", filme);
+			fService.atualizarFilme(filme);
+			return "VisualizarFilme";
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return "Erro";
+		return "index";
 	}
-	
-	@RequestMapping("/listar_lancamento")
-	public String listarLancamento(Model model) {
-		
-		try {
-			ArrayList<Filme> lista = fService.listarFilmes();
-			ArrayList<ArrayList<Filme>> listas = new ArrayList<ArrayList<Filme>>();
-			listas = fService.getLancamentos(lista);
-			model.addAttribute("listas", listas);
-			return "ListarFilmesLancamento";
-		}catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return "Erro";
-	}
-	
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
