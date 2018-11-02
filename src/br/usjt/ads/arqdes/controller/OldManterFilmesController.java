@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -40,8 +41,8 @@ public class OldManterFilmesController extends HttpServlet {
 		Genero genero;
 		HttpSession session;
 		int idFilme;
-		ArrayList<Genero> generos;
-		ArrayList<Filme> filmes;
+		List<Genero> generos;
+		List<Filme> filmes;
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
 		String titulo = request.getParameter("titulo");
@@ -154,7 +155,7 @@ public class OldManterFilmesController extends HttpServlet {
 		case "listar":
 			session = request.getSession();
 			fService = new FilmeService();
-			ArrayList<Filme> lista;
+			List<Filme> lista;
 			if (chave != null && chave.length() > 0) {
 				lista = fService.listarFilmes(chave);
 			} else {
@@ -245,16 +246,6 @@ public class OldManterFilmesController extends HttpServlet {
 			session.setAttribute("filmes", filmes);
 			session.setAttribute("popularidades", popularidades);
 			dispatcher = request.getRequestDispatcher("ListarFilmesPopularidade.jsp");
-			dispatcher.forward(request, response);
-			break;
-		case "listarLancamentos":
-			session = request.getSession();
-			fService = new FilmeService();
-			ArrayList<Filme> listafd = fService.listarFilmes();
-			ArrayList<ArrayList<Filme>> listas = new ArrayList<ArrayList<Filme>>();
-			listas = getLancamentos(listafd);
-			session.setAttribute("listas", listas);
-			dispatcher = request.getRequestDispatcher("ListarFilmesLancamento.jsp");
 			dispatcher.forward(request, response);
 			break;
 		}
