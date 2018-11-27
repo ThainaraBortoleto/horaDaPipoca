@@ -16,20 +16,9 @@
 		base-package="br.usjt.ads.arqdes" />
 	<mvc:annotation-driven />
 	<mvc:default-servlet-handler />
+	<mvc:resources mapping="/resources/**"
+		location="/resources/" />
 
-	<bean
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/views/" />
-		<property name="suffix" value=".jsp" />
-	</bean>
-	<bean id="mysqlDataSource"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName"
-			value="com.mysql.jdbc.Driver"></property>
-		<property name="url" value="jdbc:mysql://localhost/pipocadb"></property>
-		<property name="username" value="root"></property>
-		<property name="password" value="Lima9608"></property>
-	</bean>
 	<bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="mysqlDataSource" />
@@ -38,25 +27,33 @@
 				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
 	</bean>
-	<!-- gerenciamento de transacao pelo spring -->
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="5242880" />
+	</bean>
+
+	<bean id="mysqlDataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://localhost/pipocadb"></property>
+		<property name="username" value="morone"></property>
+		<property name="password" value="morone123"></property>
+	</bean>
+
 	<bean id="transactionManager"
 		class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory"
 			ref="entityManagerFactory" />
 	</bean>
+
 	<tx:annotation-driven />
+
 </beans>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
