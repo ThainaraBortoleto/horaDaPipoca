@@ -11,31 +11,27 @@ import javax.validation.constraints.Size;
 public class Genero {
 	@Id
 	@NotNull
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	@NotNull
-	@Size(max = 60)
+	@Size(max=60)
 	private String nome;
-
 	public int getId() {
 		return id;
 	}
-
 	public void setId(int id) {
 		this.id = id;
 	}
-
 	public String getNome() {
 		return nome;
 	}
-
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Genero [id=" + id + ", nome=" + nome + "]";
 	}
-
+	
 }
